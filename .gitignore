@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+.out/
+
+#test files
+test-*.js
+test-*.ts
+test-*.tsx
+
+# production builds
+build/
+dist/
+
+# environment vars
+.env*
+
+# debug logs
+*.log
+pnpm-debug.log*
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# node modules
+apps/*/node_modules
+packages/*/node_modules
