@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "private": true,
+  "description": "Next.js frontend to display live cryptocurrency prices. Connects to backend via ConnectRPC.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@connectrpc/connect": "^1.6.1",
+    "@connectrpc/connect-web": "^1.6.1",
+    "@bufbuild/protobuf": "^1.10.1",
+    "next": "^13.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.2.0"
+  }
+}

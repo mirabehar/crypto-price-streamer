@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "./dist",
+        "baseUrl": "../..",
+        "paths": {
+            "tradingview-gen/*": [
+                "packages/tradingview-gen/*"
+            ]
+        },
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "src/**/*",
+        "../../packages/tradingview-gen/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

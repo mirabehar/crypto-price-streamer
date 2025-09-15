@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package crypto_stream;
+
+// Service for managing cryptocurrency price streaming
+service CryptoStreamService {
+  // Add a ticker to start receiving price updates
+  rpc AddTicker(AddTickerRequest) returns (AddTickerResponse);
+  
+  // Remove a ticker to stop receiving price updates
+  rpc RemoveTicker(RemoveTickerRequest) returns (RemoveTickerResponse);
+  
+  // Stream real-time price updates
+  rpc StreamPrices(StreamPricesRequest) returns (stream PriceUpdate);
+  
+  // Get list of currently active tickers
+  rpc GetActiveTickers(GetActiveTickersRequest) returns (GetActiveTickersResponse);
+}
+
+// Request to add a ticker
+message AddTickerRequest {
+  string ticker = 1; // e.g., "BTCUSD", "ETHUSD"
+}
+
+message AddTickerResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request to remove a ticker
+message RemoveTickerRequest {
+  string ticker = 1;
+}
+
+message RemoveTickerResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request to start streaming prices
+message StreamPricesRequest {
+  // Empty for now, may add filters later
+}
+
+// Real-time price update
+message PriceUpdate {
+  string ticker = 1;
+  string price = 2;
+  int64 timestamp = 3;
+  string exchange = 4; // Will be "BINANCE" 
+}
+
+// Request to get active tickers
+message GetActiveTickersRequest {
+  // Empty for now
+}
+
+// Ticker info with price data
+message TickerInfo {
+  string symbol = 1;
+  string current_price = 2;
+  string last_updated = 3;
+}
+
+// Returns TickerInfo objects
+message GetActiveTickersResponse {
+  repeated TickerInfo tickers = 1;
+}

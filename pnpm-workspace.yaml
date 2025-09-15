@@ -1,0 +1,4 @@
+# Workspace packages are defined here so that pnpm can install dependencies recursively
+packages:
+  - "apps/*"      # backend and frontend apps
+  - "packages/*"  # shared/generated code

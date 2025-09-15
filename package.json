@@ -1,0 +1,34 @@
+{
+    "name": "crypto-stream",
+    "private": true,
+    "description": "Application for streaming live cryptocurrency prices from TradingView, with Node.js backend and Next.js frontend",
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "pnpm run generate && pnpm -r build",
+        "dev": "pnpm run generate && concurrently \"pnpm -F server dev\" \"pnpm -F web dev\"",
+        "generate": "buf generate",
+        "install-deps": "pnpm install --recursive"
+    },
+    "devDependencies": {
+        "@bufbuild/buf": "^1.28.1",
+        "@bufbuild/protoc-gen-es": "^1.10.1",
+        "@connectrpc/protoc-gen-connect-es": "^1.6.1",
+        "concurrently": "^8.2.2",
+        "tsx": "^3.14.0",
+        "typescript": "^5.3.3"
+    },
+    "dependencies": {
+        "@bufbuild/protobuf": "^1.10.1",
+        "@connectrpc/connect": "^1.6.1",
+        "@connectrpc/connect-node": "^1.6.1"
+    },
+    "pnpm": {
+        "overrides": {
+            "@bufbuild/protobuf": "^1.10.1",
+            "@connectrpc/connect": "^1.6.1"
+        }
+    }
+}
