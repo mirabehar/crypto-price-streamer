@@ -5,7 +5,10 @@ node_modules/
 .next/
 .out/
 
-#test files
+# file backups (new features in progress)
+apps/web/pages/index.txt
+
+# test files
 test-*.js
 test-*.ts
 test-*.tsx
