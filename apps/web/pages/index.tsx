@@ -49,25 +49,49 @@ export default function Home() {
   const transport = useMemo(() => createConnectTransport({ baseUrl: 'http://localhost:8080' }), []);
   const client = useMemo(() => createCallbackClient(CryptoStreamService, transport), [transport]);
 
+  // Stream real-time price updates
   useEffect(() => {
-    const transport = createConnectTransport({ baseUrl: "http://localhost:8080" });
-    const client = createCallbackClient(CryptoStreamService, transport);
+    let isActive = true;
 
-    const interval = setInterval(() => {
-      client.getActiveTickers(new GetActiveTickersRequest(), (error, response) => {
-        if (error || !response) return;
+    client.streamPrices(
+      {},
+      (response) => {  // response is PriceUpdate
+        if (!isActive) return;
 
-        const tickerData: TickerData[] = response.tickers.map(ticker => ({
-          symbol: ticker.symbol,
-          price: ticker.currentPrice,
-          lastUpdated: ticker.lastUpdated
-        }));
+        console.log('Received price update:', response);
 
-        setTickers(tickerData);
-      });
-    }, 1000); // every second
+        setTickers(prev => {
+          const index = prev.findIndex(t => t.symbol === response.ticker);
 
-    return () => clearInterval(interval);
+          if (index === -1) {
+            // New ticker --> add it
+            return [...prev, {
+              symbol: response.ticker,
+              price: response.price,
+              lastUpdated: new Date(Number(response.timestamp)).toLocaleTimeString()
+            }].sort((a, b) => a.symbol.localeCompare(b.symbol));
+          } else {
+            // Existing ticker --> update it
+            const updated = [...prev];
+            updated[index] = {
+              symbol: response.ticker,
+              price: response.price,
+              lastUpdated: new Date(Number(response.timestamp)).toLocaleTimeString()
+            };
+            return updated;
+          }
+        });
+      },
+      (error) => {
+        if (isActive) {
+          console.error('Stream error:', error);
+        }
+      }
+    );
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const [isInvalid, setIsInvalid] = useState(false); // highlights input if invalid
@@ -124,7 +148,7 @@ export default function Home() {
           setMessage(`✅ ${response.message}`);
           setIsInvalid(false); // valid ticker, remove red highlight
           setNewTicker('');
-        
+
           // Immediately refresh the list to show new ticker
           setTimeout(() => loadActiveTickers(), 1000);
         } else {
