@@ -7,9 +7,11 @@ import {
     AddTickerResponse,
     RemoveTickerRequest,
     RemoveTickerResponse,
-    GetActiveTickersRequest,
-    GetActiveTickersResponse,
-    TickerInfo
+    StreamPricesRequest,
+    PriceUpdate,
+    GetActiveTickersRequest, //TODO: delete
+    GetActiveTickersResponse, //TODO: delete
+    TickerInfo //TODO: delete
 } from "../../../packages/tradingview-gen/proto/crypto-stream_pb";
 import { TradingViewScraper } from "./scraper";
 
@@ -25,7 +27,7 @@ const scraper = new TradingViewScraper();
 
 // Register streaming clients 
 type StreamClient = {
-    send: (update: TickerInfo) => void;
+    send: (update: PriceUpdate) => void;
     close: () => void;
 };
 const streamingClients = new Set<StreamClient>();
@@ -69,10 +71,11 @@ const routes = () => (router: any) => {
                         console.log(`Live update for ${ticker}: $${price.toFixed(2)}`);
 
                         // Broadcast to streaming clients
-                        const update = new TickerInfo({
-                            symbol: ticker,
-                            currentPrice: price.toFixed(2),
-                            lastUpdated: tickerData.lastUpdated.toISOString(),
+                        const update = new PriceUpdate({
+                            ticker: ticker,
+                            price: price.toFixed(2),
+                            timestamp: BigInt(Date.now()),
+                            exchange: "BINANCE" // may expand beyond Binance in the future
                         });
 
                         for (const client of streamingClients) {
@@ -117,6 +120,7 @@ const routes = () => (router: any) => {
             });
         },
 
+        // TODO:delete
         async getActiveTickers(req: GetActiveTickersRequest, context: HandlerContext): Promise<GetActiveTickersResponse> {
             const tickerArray = Array.from(activeTickers.values()) // converts map of ticker objects to array
                 .sort((a, b) => a.symbol.localeCompare(b.symbol)); // alphabetical sorting
@@ -130,7 +134,7 @@ const routes = () => (router: any) => {
                     : 'Loading...';
                 const timeDisplay = ticker.lastUpdated
                     ? ticker.lastUpdated.toLocaleTimeString()
-                    : '';  
+                    : '';
 
                 console.log(`  ${ticker.symbol}: ${priceDisplay} (updated: ${timeDisplay})`);
 
@@ -147,16 +151,16 @@ const routes = () => (router: any) => {
             });
         },
 
-        async *streamPrices(req: any, context: HandlerContext) {
+        async *streamPrices(req: StreamPricesRequest, context: HandlerContext) {
             console.log('New streaming client connected');
 
             // Create a queue to hold updates for this specific client
-            const updateQueue: TickerInfo[] = [];
+            const updateQueue: PriceUpdate[] = [];
             let isActive = true;
 
             // Create client object that can receive updates
             const client: StreamClient = {
-                send: (update: TickerInfo) => {
+                send: (update: PriceUpdate) => {
                     if (isActive) {
                         updateQueue.push(update);
                     }
@@ -173,10 +177,11 @@ const routes = () => (router: any) => {
             const currentTickers = Array.from(activeTickers.values());
             for (const ticker of currentTickers) {
                 if (ticker.currentPrice !== null && isActive) {
-                    const initialUpdate = new TickerInfo({
-                        symbol: ticker.symbol,
-                        currentPrice: ticker.currentPrice.toFixed(2),
-                        lastUpdated: ticker.lastUpdated?.toISOString() || new Date().toISOString(),
+                    const initialUpdate = new PriceUpdate({
+                        ticker: ticker.symbol,
+                        price: ticker.currentPrice.toFixed(2),
+                        timestamp: BigInt(ticker.lastUpdated?.getTime() || Date.now()),
+                        exchange: "BINANCE"
                     });
                     yield initialUpdate;
                 }
