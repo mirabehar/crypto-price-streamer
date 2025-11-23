@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { AddTickerRequest, AddTickerResponse, GetActiveTickersRequest, GetActiveTickersResponse, PriceUpdate, RemoveTickerRequest, RemoveTickerResponse, StreamPricesRequest } from "./crypto-stream_pb.js";
+import { AddTickerRequest, AddTickerResponse, PriceUpdate, RemoveTickerRequest, RemoveTickerResponse, StreamPricesRequest } from "./crypto-stream_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -46,17 +46,6 @@ export const CryptoStreamService = {
       I: StreamPricesRequest,
       O: PriceUpdate,
       kind: MethodKind.ServerStreaming,
-    },
-    /**
-     * Get list of currently active tickers
-     *
-     * @generated from rpc crypto_stream.CryptoStreamService.GetActiveTickers
-     */
-    getActiveTickers: {
-      name: "GetActiveTickers",
-      I: GetActiveTickersRequest,
-      O: GetActiveTickersResponse,
-      kind: MethodKind.Unary,
     },
   }
 } as const;

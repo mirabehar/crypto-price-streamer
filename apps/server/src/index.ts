@@ -8,10 +8,7 @@ import {
     RemoveTickerRequest,
     RemoveTickerResponse,
     StreamPricesRequest,
-    PriceUpdate,
-    GetActiveTickersRequest, //TODO: delete
-    GetActiveTickersResponse, //TODO: delete
-    TickerInfo //TODO: delete
+    PriceUpdate
 } from "../../../packages/tradingview-gen/proto/crypto-stream_pb";
 import { TradingViewScraper } from "./scraper";
 
@@ -108,6 +105,19 @@ const routes = () => (router: any) => {
                 });
             }
 
+            // Broadcast removal to all streaming clients before unsubscribing
+            const removalUpdate = new PriceUpdate({
+                ticker: ticker,
+                price: "",
+                timestamp: BigInt(Date.now()),
+                exchange: "BINANCE",
+                removed: true  
+            });
+
+            for (const client of streamingClients) {
+                client.send(removalUpdate);
+            }
+
             // unsibscribe from streaming
             await scraper.unsubscribeFromTicker(ticker);
 
@@ -117,37 +127,6 @@ const routes = () => (router: any) => {
             return new RemoveTickerResponse({
                 success: true,
                 message: `Successfully removed ${ticker}`
-            });
-        },
-
-        // TODO:delete
-        async getActiveTickers(req: GetActiveTickersRequest, context: HandlerContext): Promise<GetActiveTickersResponse> {
-            const tickerArray = Array.from(activeTickers.values()) // converts map of ticker objects to array
-                .sort((a, b) => a.symbol.localeCompare(b.symbol)); // alphabetical sorting
-
-            console.log(`Returning ${tickerArray.length} active tickers with live prices:`, tickerArray);
-
-            // Create TickerInfo objects with real price data
-            const tickerInfos = tickerArray.map(ticker => {
-                const priceDisplay = ticker.currentPrice
-                    ? `$${ticker.currentPrice.toFixed(2)}`
-                    : 'Loading...';
-                const timeDisplay = ticker.lastUpdated
-                    ? ticker.lastUpdated.toLocaleTimeString()
-                    : '';
-
-                console.log(`  ${ticker.symbol}: ${priceDisplay} (updated: ${timeDisplay})`);
-
-                // Return TickerInfo object or loading text if price null or undefined
-                return new TickerInfo({
-                    symbol: ticker.symbol,
-                    currentPrice: ticker.currentPrice?.toFixed(2) || 'Loading...',
-                    lastUpdated: timeDisplay
-                });
-            });
-
-            return new GetActiveTickersResponse({
-                tickers: tickerInfos
             });
         },
 

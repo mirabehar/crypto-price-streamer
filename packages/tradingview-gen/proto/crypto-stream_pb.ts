@@ -235,6 +235,11 @@ export class PriceUpdate extends Message<PriceUpdate> {
    */
   exchange = "";
 
+  /**
+   * @generated from field: bool removed = 5;
+   */
+  removed = false;
+
   constructor(data?: PartialMessage<PriceUpdate>) {
     super();
     proto3.util.initPartial(data, this);
@@ -247,6 +252,7 @@ export class PriceUpdate extends Message<PriceUpdate> {
     { no: 2, name: "price", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "timestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
     { no: 4, name: "exchange", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "removed", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PriceUpdate {
@@ -263,41 +269,6 @@ export class PriceUpdate extends Message<PriceUpdate> {
 
   static equals(a: PriceUpdate | PlainMessage<PriceUpdate> | undefined, b: PriceUpdate | PlainMessage<PriceUpdate> | undefined): boolean {
     return proto3.util.equals(PriceUpdate, a, b);
-  }
-}
-
-/**
- * Request to get active tickers
- *
- * Empty for now
- *
- * @generated from message crypto_stream.GetActiveTickersRequest
- */
-export class GetActiveTickersRequest extends Message<GetActiveTickersRequest> {
-  constructor(data?: PartialMessage<GetActiveTickersRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "crypto_stream.GetActiveTickersRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetActiveTickersRequest {
-    return new GetActiveTickersRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetActiveTickersRequest {
-    return new GetActiveTickersRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetActiveTickersRequest {
-    return new GetActiveTickersRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: GetActiveTickersRequest | PlainMessage<GetActiveTickersRequest> | undefined, b: GetActiveTickersRequest | PlainMessage<GetActiveTickersRequest> | undefined): boolean {
-    return proto3.util.equals(GetActiveTickersRequest, a, b);
   }
 }
 

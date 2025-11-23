@@ -4,9 +4,7 @@ import { createCallbackClient } from '@connectrpc/connect';
 import { CryptoStreamService } from '../../../packages/tradingview-gen/proto/crypto-stream_connect';
 import {
   AddTickerRequest,
-  RemoveTickerRequest,
-  GetActiveTickersRequest,
-  TickerInfo
+  RemoveTickerRequest
 } from '../../../packages/tradingview-gen/proto/crypto-stream_pb';
 
 interface TickerData {
@@ -55,11 +53,19 @@ export default function Home() {
 
     client.streamPrices(
       {},
-      (response) => {  // response is PriceUpdate
+      (response) => {
         if (!isActive) return;
 
         console.log('Received price update:', response);
 
+        // Check for removal message
+        if (response.removed) {
+          console.log(`Removing ticker from UI: ${response.ticker}`);
+          setTickers(prev => prev.filter(t => t.symbol !== response.ticker));
+          return;
+        }
+
+        // Otherwise update price
         setTickers(prev => {
           const index = prev.findIndex(t => t.symbol === response.ticker);
 
@@ -96,33 +102,6 @@ export default function Home() {
 
   const [isInvalid, setIsInvalid] = useState(false); // highlights input if invalid
 
-  const loadActiveTickers = () => {
-    console.log('Loading active tickers...');
-
-    client.getActiveTickers(new GetActiveTickersRequest(), (error, response) => {
-      if (error) {
-        console.error('Failed to load tickers:', error);
-        setMessage('Failed to connect to server. Make sure backend is running on port 8080.');
-        return;
-      }
-
-      if (response) {
-        // Transform response to UI format
-        const tickerData: TickerData[] = response.tickers
-          .sort((a, b) => a.symbol.localeCompare(b.symbol)) // Sort alphabetically 
-          .map(ticker => ({
-            symbol: ticker.symbol,           // ticker.symbol (string)
-            price: ticker.currentPrice,      // ticker.currentPrice (string)
-            lastUpdated: ticker.lastUpdated  // ticker.lastUpdated (string)
-          }));
-
-        setTickers(tickerData);
-        console.log(`Loaded ${tickerData.length} tickers with prices:`,
-          tickerData.map(t => `${t.symbol}: ${t.price}`));
-      }
-    });
-  };
-
   const handleAddTicker = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTicker.trim()) return;
@@ -148,9 +127,6 @@ export default function Home() {
           setMessage(`✅ ${response.message}`);
           setIsInvalid(false); // valid ticker, remove red highlight
           setNewTicker('');
-
-          // Immediately refresh the list to show new ticker
-          setTimeout(() => loadActiveTickers(), 1000);
         } else {
           setIsInvalid(true);   // INVALID ticker, highlight input
           setMessage(`❌ ${response.message}`);
@@ -162,6 +138,9 @@ export default function Home() {
   const handleRemoveTicker = (ticker: string) => {
     console.log(`Removing ticker: ${ticker}`);
 
+    // Remove ticker from UI
+    setTickers(prev => prev.filter(t => t.symbol !== ticker));
+
     client.removeTicker(new RemoveTickerRequest({ ticker }), (error, response) => {
       if (error) {
         console.error('Failed to remove ticker:', error);
@@ -172,8 +151,6 @@ export default function Home() {
       if (response) {
         if (response.success) {
           setMessage(`✅ ${response.message}`);
-          // Immediately refresh the list
-          setTimeout(() => loadActiveTickers(), 500);
         } else {
           setMessage(`❌ ${response.message}`);
         }

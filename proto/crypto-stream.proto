@@ -12,9 +12,6 @@ service CryptoStreamService {
   
   // Stream real-time price updates
   rpc StreamPrices(StreamPricesRequest) returns (stream PriceUpdate);
-  
-  // Get list of currently active tickers
-  rpc GetActiveTickers(GetActiveTickersRequest) returns (GetActiveTickersResponse);
 }
 
 // Request to add a ticker
@@ -48,11 +45,7 @@ message PriceUpdate {
   string price = 2;
   int64 timestamp = 3;
   string exchange = 4; // Will be "BINANCE" 
-}
-
-// Request to get active tickers
-message GetActiveTickersRequest {
-  // Empty for now
+  bool removed = 5; 
 }
 
 // Ticker info with price data
